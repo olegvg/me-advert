@@ -1,0 +1,57 @@
+{% macro render_full_input_tag(field, class, id="", ext_params="") -%}
+  <input name="{{ field.name }}" type="{{field.widget.input_type }}" class="{{ class }}" id="{{ id }}"
+    placeholder="{{field.label.text|e}}..."
+    {%- if field.widget.input_type in ['radio', 'checkbox'] -%}
+      {%- if field.data -%} checked {% endif -%}
+    {%- else -%}
+      {%- if field.data -%} value="{{ field._value()|e }}" {%- endif -%}
+    {%- endif -%}
+    {%- if ext_params -%} {{ ext_params|safe }} {%- endif -%}/>
+{%- endmacro %}
+
+{% macro render_input_tag(field, class, id="", ext_params="") -%}
+  <input name="{{ field.name }}" type="{{field.widget.input_type }}" class="{{ class }}" id="{{ id }}"
+    {%- if field.widget.input_type in ['radio', 'checkbox'] -%}
+      {%- if field.data -%} checked {% endif -%}
+    {%- else -%}
+      {%- if field.data -%} value="{{ field._value()|e }}" {%- endif -%}
+    {%- endif -%}
+    {%- if ext_params -%} {{ ext_params|safe }} {%- endif -%}/>
+{%- endmacro %}
+
+{% macro render_fileinput_tag(field, id="", ext_params="") -%}
+  {%- if field.widget.input_type == 'file' %}
+    <div class="fileupload fileupload-new" data-provides="fileupload">
+      <span class="btn btn-file">
+        <span class="fileupload-new">Выберите файл</span>
+        <span class="fileupload-exists">Изменить</span>
+        <input name="{{ field.name }}" type="file" id="{{ id }}"
+          {%- if ext_params -%} {{ ext_params|safe }} {%- endif -%}
+          {%- if field.data -%} value="{{ field._value()|e }}" {%- endif -%}
+        />
+      </span>
+      <span class="fileupload-preview"></span>
+      <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+    </div>
+  {% endif -%}
+{% endmacro %}
+
+{% macro field_validation_error(form, field) -%}
+  {%- if form.errors[field] -%} <span class="help-block"><p class="text-error">{{ form.errors[field]|join(',') }}</p></span> {%- endif -%}
+{%- endmacro %}
+
+{% macro field_label(field, class, pre_label_text="", post_label_text="") -%}
+  <label for="{{ field.name }}"{% if class %} class="{{ class }}"{% endif %}>{{ pre_label_text }} {{ field.label.text|e }} {{ post_label_text }}</label>
+{%- endmacro %}
+
+{% macro render_select_tag(field, class, id="", ext_params="") -%}
+  <select name="{{ field.name }}" class="{{ class }}" id="{{ id }}"{% if ext_params %} {{ ext_params|safe }} {% endif %}>
+    {%- for val, label, selected in field.iter_choices() -%}
+      <option value="{{ val }}"{% if selected %} selected{% endif %}>{{ label }}</option>
+    {%- endfor -%}
+  </select>
+{%- endmacro %}
+
+{% macro render_textarea_tag(field, class, id="", ext_params="") -%}
+  <textarea name="{{ field.name }}" class="{{ class }}" id="{{ id }}"{% if ext_params %} {{ ext_params|safe }} {% endif %}>{{ field._value()|e }}</textarea>
+{%- endmacro %}

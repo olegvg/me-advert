@@ -1,0 +1,113 @@
+{% extends 'client/frame.html' %}
+
+{%- macro tr_cells(exp_list, row_index, row_len) %}
+  <tr>
+    {% for num in range(row_index * row_len, row_index * row_len + row_len) -%}
+      <td>{% if exp_list[num] %}{{ exp_list[num].site }}{% endif %}</td>
+    {%- endfor %}
+  </tr>
+{%- endmacro -%}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-briefcase"></i>
+            Креативы :: {{ campaign.name|e }}
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin dataTable table-bordered">
+            <colgroup>
+              <col style="width: 35%;"> {# creative compound name #}
+              <col>  {# target impressions #}
+              <col>  {# # of impressions #}
+              <col>  {# # of clicks #}
+              <col>  {# CTR #}
+              <col> {# Reach #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Креатив</th>
+                <th>Целевые показы</th>
+                <th>Показы</th>
+                <th>Клики</th>
+                <th>CTR (%)</th>
+                <th>Охват</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in creatives %}
+                <tr>
+                  <td>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать отчет" href="{{ url_for('client.stats_by_creative', creative_id=row.creative_id) }}"><i class="icon-bar-chart"></i></a>
+                    <span>{% if row.creative_name %}{{ row.creative_name|e }} ({{ row.creative_format.get_full_name()|e }}){% else %}{{ row.creative_format.get_full_name()|e }}{% endif %}</span>
+                  </td>
+                  <td>{{ row.target_impr }}</td>
+                  <td>{{ row.impr  if row.impr else 0 }}</td>
+                  <td>{{ row.clck if row.clck else 0 }}</td>
+                  <td>{{ row.ctr|safe }}</td>
+                  <td>{{ row.reach }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-list"></i>
+            Площадки :: {{ campaign.name|e }}
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin dataTable table-bordered">
+            <thead>
+              <tr>
+                <th>Площадка</th>
+                <th>Площадка</th>
+                <th>Площадка</th>
+                <th>Площадка</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- set row_len = 4 -%}
+              {% for row_index in range(0, (sites|count / row_len)|round(0, 'ceil')|int) -%}
+                {{- tr_cells(sites, row_index, row_len) -}}
+              {%- endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      function reload(){
+        location.reload();
+      }
+      setTimeout(reload, dataRefreshInterval);
+      $('a#page-refresh').
+        each(function() {
+          $(this).click(function(){
+          setTimeout(reload, delayBeforePageReload);
+        })
+      });
+
+      $("#mytable_info").prepend('<button></button>')
+    })
+  </script>
+{%  endblock %}

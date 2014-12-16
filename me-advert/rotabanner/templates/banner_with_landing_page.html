@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <base target="_blank" />
+    <style>
+      * {
+        margin: 0; padding: 0;
+      }
+      html,
+      body {height: 100%;}
+      .fl {
+        width: {{ dim_x }}px;
+        height: {{ dim_y }}px;
+        margin: 0;
+        position: relative;
+        display: block;
+        background-image: url("http://ads.edvent.ru/cpcimpr/{{ uid }}");
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fl">
+      <script type="text/javascript">
+        {% if first_ext %}
+          if((typeof navigator.plugins == "undefined" || navigator.plugins.length == 0) ? !!(new ActiveXObject("ShockwaveFlash.ShockwaveFlash")) : navigator.plugins["Shockwave Flash"]) {
+            document.write('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" width="{{ dim_x }}" height="{{ dim_y }}">' +
+            '<param name="src" value="http://static-cdn.edvent.ru/{{ uid }}.{{ first_ext }}" />' +
+            '<param name="width" value="{{ dim_x }}" />' +
+            '<param name="height" value="{{ dim_y }}" />' +
+            '<param name="FlashVars" value="clickTAG=http://ads.edvent.ru/screen.html?{{ uid }}&link1=http://ads.edvent.ru/screen.html?{{ uid }}" />' +
+            '<embed type="application/x-shockwave-flash" src="http://static-cdn.edvent.ru/{{ uid }}.{{ first_ext }}" FlashVars="clickTAG=http://ads.edvent.ru/screen.html?{{ uid }}&link1=http://ads.edvent.ru/screen.html?{{ uid }}" width="{{ dim_x }}" height="{{ dim_y }}"></embed></object>')
+          } else {
+        {% end %}
+        {% if second_ext %}
+            document.write('<a href="http://ads.edvent.ru/screen.html?{{ uid }}" target="_blank">' +
+            '<img src="http://static-cdn.edvent.ru/{{ uid }}.{{ second_ext }}" alt="Edvent" border=0 width={{ dim_x }} height={{ dim_y }}></a>')
+        {% end %}
+        {% if first_ext %}
+          }
+        {% end %}
+      </script>
+      {% if second_ext %}
+        <noscript>
+          <a href="http://ads.edvent.ru/screen.html?{{ uid }}" target="_blank">
+          <img src="http://static-cdn.edvent.ru/{{ uid }}.{{ second_ext }}" alt="Edvent" border=0 width={{ dim_x }} height={{ dim_y }}></a>
+        </noscript>
+      {% end %}
+    </div>
+  </body>
+</html>

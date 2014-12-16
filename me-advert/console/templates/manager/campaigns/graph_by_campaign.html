@@ -1,0 +1,11 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}{{ campaign.organization.name|e }} :: {{ campaign.name|e }}{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}{{ campaign.organization.name|e }}{% if campaign.organization.full_name %} ({{ campaign.organization.full_name|e }}){% endif %} :: {{ campaign.name|e }}{% endblock %}
+
+{% block content %}
+  {% set stats_ajax_endpoint = url_for('client.stats_graph_of_campaign_ajax', campaign_id=campaign.id) %}
+  {% set is_reach_visible = False %}
+  {% include 'graph_body.html' %}
+{% endblock %}

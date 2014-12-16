@@ -1,0 +1,26 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-briefcase"></i>
+            Креативы :: <a href="{{ url_for('manager.campaigns_by_org', org_id=org_id) }}">{{ org_name|e }}{% if org_full_name %} ({{ org_full_name|e }}){% endif %}</a>
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        <div class="box-content">
+          <a class="btn btn-primary" href="{{ url_for('manager.new_creative_to_campaign', campaign_id=campaign_id) }}">Создать креатив</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

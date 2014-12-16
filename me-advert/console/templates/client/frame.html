@@ -1,0 +1,6 @@
+{% extends 'frame.html' %}
+
+{% block nav_pane %}
+  <li class="{% block nav_overview %}{% endblock %}"><a href="{{ url_for('client.overview') }}">Клиент</a></li>
+  <li class="{% block nav_campaigns %}{% endblock %}"><a href="{{ url_for('client.campaigns') }}">Кампании</a></li>
+{% endblock %}

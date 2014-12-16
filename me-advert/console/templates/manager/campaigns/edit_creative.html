@@ -1,0 +1,212 @@
+{% extends 'manager/frame.html' %}
+
+{% from "forms.html" import render_input_tag, field_validation_error, field_label, render_select_tag %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box">
+        <div class="box-title">
+          <h3>
+            <i class="icon-user"></i>
+            {{ {'new': 'Новый креатив', 'edit': 'Редактировать креатив'}[type] }} :: <a href="{{ url_for('manager.campaigns_by_org', org_id=campaign.organization.id) }}">{{ campaign.organization.name|e }}{% if campaign.organization.full_name %} ({{ campaign.organization.full_name|e }}){% endif %}</a> :: <a href="{{ url_for('manager.creatives_by_campaign', campaign_id=campaign.id) }}">{{ campaign.name|e }}</a>
+          </h3>
+        </div>
+        {% if type == 'edit' %}
+          <div class="container-fluid span6">
+            <div class="row-fluid">
+              <div class="alert alert-error">
+                <strong>Осторожно!</strong> Все изменения здесь тут же отобразятся в интерфейсе клиента!
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        <div class="box-content span6">
+          <form action="{% if back_url %}?back_url={{ back_url }}{% endif %}" method='post' class='form-validate form-horizontal' id="campaign_form">
+            {{ form.hidden_tag() }}
+            <div class="control-group">
+              {{ field_label(form.creative_format_id, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.creative_format_id, "input-block-level", "creative_format_id", ext_params="data-rule-required='true' data-placeholder=' '") }}
+                {{ field_validation_error(form, "creative_format_id") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.name, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.name, "input-block-level", "name") }}
+                <span class="help-block">Название креатива</span>
+                {{ field_validation_error(form, "name") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.geo_countries, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.geo_countries, "input-block-level", "geo_countries") }}
+                <span class="help-block">Список стран латиницей: Russian Federation, United Kingdom etc.</span>
+                {{ field_validation_error(form, "geo_countries") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.geo_cities, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.geo_cities, "input-block-level", "geo_cities") }}
+                <span class="help-block">Список городов РФ латиницей: Moscow, Samara etc.</span>
+                {{ field_validation_error(form, "geo_cities") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.frequency, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.frequency, "input-block-level", "frequency", ext_params="data-rule-required='true'") }}
+                <span class="help-block">частота вида '4.78'</span>
+                {{ field_validation_error(form, "frequency") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.target_impressions, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.target_impressions, "input-block-level", "target_impressions", ext_params="data-rule-required='true' data-rule-number='true'") }}
+                <span class="help-block">заданное рекламодателем целевое количество показов в виде '1250000'</span>
+                {{ field_validation_error(form, "target_impressions") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.impression_target_url, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.impression_target_url, "input-block-level", "impression_target_url", ext_params="data-rule-minlength='7' placeholder='http://'") }}
+                <span class="help-block">ссылка на zero-пиксел клиента (напр. на AdRiver), может быть пустым</span>
+                {{ field_validation_error(form, "impression_target_url") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.click_target_url, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.click_target_url, "input-block-level", "click_target_url", ext_params="data-rule-required='true' data-rule-minlength='7' placeholder='http://'") }}
+                <span class="help-block">ссылка на landing page клиента</span>
+                {{ field_validation_error(form, "click_target_url") }}
+              </div>
+            </div>
+            <span class="help-block">Поля, помеченные (*), обязательны к заполнению</span>
+            <div class="form-actions">
+              <input type="submit" class="btn btn-primary" value="{{ {'new': 'Создать', 'edit': 'Изменить'}[type] }}">
+              <button type="button" class="btn">Отмена</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+
+    $(".mask-date-ru").mask("99.99.9999");
+    $("select#state").select2({
+      minimumResultsForSearch: -1
+    });
+
+    function formatResult(t) {
+      return "<p>" + t.name + "</p>";
+    }
+    function formatResultTiny(t) {
+      return t.name;
+    }
+
+    $("input#creative_format_id").select2({
+      minimumInputLength: 1,
+      multiple: false,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_creative_formats_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.creative_formats};
+        }
+      },
+      initSelection: function(element, callback) {
+        var id=$(element).val();
+        if (id!=="") {
+          $.ajax("{{ url_for('manager.creative_format_by_id_ajax') }}", {
+            data: {
+              creative_format_id: id
+            },
+            dataType: "json"
+          }).done(function(data) { callback(data); });
+        }
+      },
+      formatResult: formatResult,
+      formatSelection: formatResult,
+      escapeMarkup: function (m) { return m; }
+    });
+
+    $("input#geo_countries").select2({
+      minimumInputLength: 1,
+      multiple: true,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_geo_counties_by_mask_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.geo_countries};
+        }
+      },
+      initSelection: function(element, callback) {
+        var id=$(element).val();
+        if (id!=="") {
+          $.ajax("{{ url_for('manager.geo_country_by_id_ajax') }}", {
+            data: {
+              geo_country_id: id
+            },
+            dataType: "json"
+          }).done(function(data) { callback(data.geo_countries); });
+        }
+      },
+      formatResult: formatResultTiny,
+      formatSelection: formatResultTiny,
+      escapeMarkup: function (m) { return m; }
+    });
+
+    $("input#geo_cities").select2({
+      minimumInputLength: 1,
+      multiple: true,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_geo_cities_by_mask_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.geo_cities};
+        }
+      },
+      initSelection: function(element, callback) {
+        var ids=$(element).val().split(',');
+        var ret = [];
+        for(var i=0; i<ids.length; i++) {
+          ret.push({id:ids[i], name:ids[i]});
+        }
+        callback(ret);
+     },
+      formatResult: formatResultTiny,
+      formatSelection: formatResultTiny,
+      escapeMarkup: function (m) { return m; }
+    });
+
+  </script>
+{% endblock %}

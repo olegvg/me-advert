@@ -1,0 +1,41 @@
+{% extends 'client/frame.html' %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-briefcase"></i>
+            Креативы :: {{ campaign_name|e }}
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        <div class="box-content nopadding">
+          Для кампании ещё не создано ни одного креатива.
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      function reload(){
+        location.reload();
+      }
+      setTimeout(reload, dataRefreshInterval);
+      $('a#page-refresh').each().click(function(){
+        setTimeout(reload, delayBeforePageReload);
+      })
+
+    })
+    $(function(){
+      $("#mytable_info").prepend('<button></button>')
+    })
+  </script>
+{%  endblock %}

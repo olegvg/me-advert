@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "forms.html" import render_full_input_tag, field_validation_error %}
+
+{% block sub_title %} вход {% endblock %}
+
+{% block body %}
+  <body class='login'>
+    <div class="wrapper">
+      {%- if app_type == 'MediaEnergy' %}
+        <h1><a href="{{ url_for('index.entry') }}"><img src="{{ url_for('static', filename='img/logo-big.png') }}" alt="" class='retina-ready' width="65" height="65">MediaEnergy</a></h1>
+      {%- elif app_type == 'Edvent' %}
+        <h1><a href="{{ url_for('index.entry') }}">Edvent</a></h1>
+      {% endif -%}
+      <div class="login-body">
+        <h2>ВХОД</h2>
+        <form action="{{ url_for('auth.login') }}" method='post' class='form-validate' id="login_form">
+          {{ form.hidden_tag() }}
+          <div class="control-group">
+            <div class="email controls">
+              {{ render_full_input_tag(form.email, "input-block-level", "signin_email", ext_params="data-rule-required='true' data-rule-email='true'") }}
+              {{ field_validation_error(form, "signin_email") }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="pw controls">
+              {{ render_full_input_tag(form.plain_password, "input-block-level", "signin_password", ext_params="data-rule-required='true'") }}
+              {{ field_validation_error(form, "signin_password") }}
+            </div>
+          </div>
+          <div class="submit">
+            <div class="remember">
+              {{ render_full_input_tag(form.remember_me, "icheck-me", "signin_remember_me", ext_params="data-skin='square' data-color='blue' checked") }}
+              <label for="signin_remember_me">Запомни меня</label>
+            </div>
+            <input type="submit" value="Войти" class='btn btn-primary'>
+          </div>
+        </form>
+        <div class="forget">
+          {# <a href="{{ url_for('auth.forget') }}"><span>Забыли пароль?</span></a> --> #}
+          <a href="{# mailto:denis.burmistrov@gmail.com?Subject=Восстановление пароля на доступ к MediaEnergy #}"><span>Забыли пароль?</span></a>
+        </div>
+      </div>
+    </div>
+  </body>
+{% endblock %}

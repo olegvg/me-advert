@@ -1,0 +1,10 @@
+{% extends 'client/frame.html' %}
+
+{% block sub_title %}{{ campaign.name|e }} :: Отчет{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}{{ campaign.name|e }}{% endblock %}
+
+{% block content %}
+  {% set stats_ajax_endpoint = url_for('client.stats_graph_of_campaign_ajax', campaign_id=campaign.id) %}
+  {% include 'graph_body.html' %}
+{% endblock %}

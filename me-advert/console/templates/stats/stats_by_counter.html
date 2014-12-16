@@ -1,0 +1,25 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}{{ counter.creative.campaign.organization.name|e }} :: {{ counter.creative.campaign.name|e }}{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Отчет{% endblock %}
+
+{% block content %}
+  {% set stats_ajax_endpoint = url_for('stats.stats_by_counter_ajax', counter_id=counter.id) %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-bar-chart"></i>
+            Код :: <a href="{{ url_for('manager.campaigns_by_org', org_id=counter.creative.campaign.organization.id) }}">{{ counter.creative.campaign.organization.name|e }}{% if counter.creative.campaign.organization.full_name %} ({{ counter.creative.campaign.organization.full_name|e }}){% endif %}</a> :: <a href="{{ url_for('manager.creatives_by_campaign', campaign_id=counter.creative.campaign.id) }}">{{ counter.creative.campaign.name|e }}</a> :: <a href="{{ url_for('manager.counters_by_creative', creative_id=counter.creative.id) }}">{% if counter.creative.name %}{{ counter.creative.name }} ({{ counter.creative.creative_format.get_full_name()|e }}){% else %}{{ counter.creative.creative_format.get_full_name()|e }}{% endif %}</a> :: {{ counter.contractor.name }}
+          </h3>
+          <div class="actions">
+            <a href="#" class="btn btn-mini content-refresh" id='summary-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        {% include 'stats/stats_body.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

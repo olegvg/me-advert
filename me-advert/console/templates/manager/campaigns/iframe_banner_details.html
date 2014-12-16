@@ -1,0 +1,16 @@
+<div class="row-fluid">
+  <div class="span12">
+    {%- if counter.banner_types and counter.creative.creative_format.are_dimensions_int -%}
+      <textarea class="field span10" id="iframe-banner-text" rows="10">
+<iframe src="{{ ads_base }}/iframe/{{ counter.uniq_id }}.html" frameborder=0 vspace=0 hspace=0 width={{ counter.creative.creative_format.dimension_x }} height={{ counter.creative.creative_format.dimension_y }} marginwidth=0 marginheight=0 scrolling=no></iframe>
+      </textarea>
+      <div class="row-fluid">
+        <div class="span2">
+          <button class="btn btn-primary" onclick="copyCode('#iframe-banner-text')">Выделить код</button>
+        </div>
+      </div>
+    {%- else -%}
+      Креативы не загружены или выбраны неверные размеры баннера.
+    {%- endif -%}
+  </div>
+</div>

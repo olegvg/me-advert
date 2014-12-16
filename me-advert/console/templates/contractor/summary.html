@@ -1,0 +1,157 @@
+{% extends 'contractor/frame.html' %}
+
+{% block sub_title %}Поставщик{% endblock %}
+{% block nav_contractors %}active{% endblock %}
+{% block frame_header %}Поставщик :: {{ contractor.name }}{% if contractor.full_name %} ({{ contractor.full_name }}){% endif %}{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-barcode"></i>
+            Коды
+          </h3>
+          <div class="actions">
+            <a href="#" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        <div class="box-content">
+          <table class="table table-hover dataTable table-bordered counters">
+            <colgroup>
+              <col style="width: 40%;"> {# ad tag detailed #}
+              <col>  {# realstart date #}
+              <col>  {# finish date #}
+              <col>  {# targets #}
+              <col>  {# # of  impressions #}
+              <col>  {# # of clicks #}
+              <col>  {# CTR #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Код</th>
+                <th>Старт факт</th>
+                <th>Финиш</th>
+                <th>Таргет</th>
+                <th>Показы</th>
+                <th>Клики</th>
+                <th>CTR (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in counters %}
+                {%- if not row.impr %}{% continue %}{% endif %}
+                <tr>
+                  <td>
+                    {{ row.campaign_name }} :: {% if row.creative_name %}{{ row.creative_name }} :: {% endif %}{{ row.creative_format_name }}
+                  </td>
+                  <td>{% if row.realstart_date %}{{ row.realstart_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>{% if row.due_date %}{{ row.due_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>
+                    <div>
+                      <a href="#geoModal-{{ row.counter_id }}" data-toggle="modal">Страны / Города</a>
+                      <div id="geoModal-{{ row.counter_id }}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="geoModalLabel-{{ row.counter_id }}" aria-hidden="true">
+                        <div class="modal-header">
+                          <h3 id="geoModalLabel-{{ row.counter_id }}">Геотаргетинг по странам или городам</h3>
+                        </div>
+                        <div class="modal-body">
+                          <p>
+                            {% set spacer_country = joiner(', ') %}
+                            Страны: {% for country in row.geo_countries %}{{ spacer_country() }}{{ country }}{% endfor %}
+                          </p>
+                          <p>
+                            {% set spacer_city = joiner(',') %}
+                            Города: {% for city in row.geo_cities %}{{ spacer_city() }}{{ city }}{% endfor %}
+                          </p>
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие показы / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.impr|e if row.impr else 0 }}</strong> / {{ row.impr_rej_geo|e if row.impr_rej_geo else 0 }} / {{ row.impr_rej_browser|e if row.impr_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие клики / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.clck|e if row.clck else 0 }}</strong> / {{ row.clck_rej_geo|e if row.clck_rej_geo else 0 }} / {{ row.clck_rej_browser|e if row.clck_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="CTR по прошедшим показам и кликам"><strong>{{ row.ctr|safe }}</strong></div></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      function reload(){
+        location.reload();
+      }
+      setTimeout(reload, dataRefreshInterval);
+
+      $('a#page-refresh').
+        each(function() {
+          $(this).click(function(){
+          setTimeout(reload, delayBeforePageReload);
+        })
+      });
+
+      $('.counters').each(function(){
+          var opt = {
+              "sPaginationType": "full_numbers",
+              "iDisplayLength": 100,
+              "bFilter": false,
+              "bLengthChange": false,
+              "bInfo": false,
+              "bPaginate": false,
+              "aoColumns": [
+                {},
+                { "sType": "date-spec" },
+                { "sType": "date-spec" },
+                {},
+                {},
+                {}
+              ],
+              "oLanguage":{
+                  "sProcessing":   "Подождите...",
+                  "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                  "sZeroRecords":  "Записи отсутствуют",
+                  "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                  "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                  "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                  "sInfoPostFix":  "",
+                  "sSearch":       "<span>Поиск:</span>",
+                  "sUrl":          "",
+                  "oPaginate": {
+                      "sFirst": "Первая",
+                      "sPrevious": "Пред.",
+                      "sNext": "След.",
+                      "sLast": "Последняя"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                      "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                  }
+              },
+              "bStateSave": true,
+              "fnStateSave": function (oSettings, oData) {
+                  localStorage.setItem( 'dt-ct-contractors', JSON.stringify(oData) );
+              },
+              "fnStateLoad": function (oSettings) {
+                  return JSON.parse( localStorage.getItem('dt-ct-contractors') );
+              }
+          };
+          var oTable = $(this).dataTable(opt);
+          $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+          $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+            disable_search_threshold: 9999999
+          });
+          $("#check_all").click(function(e){
+              $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+          });
+      });
+      // force correct width for chosen
+      resize_chosen();
+    })
+  </script>
+{%  endblock %}

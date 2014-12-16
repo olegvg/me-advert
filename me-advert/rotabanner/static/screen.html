@@ -1,0 +1,28 @@
+<html>
+    <body>
+        <script>
+            window.onload = function() {
+                var tag = window.location.search.substring(1);
+                var dom = document.getElementById('cover');
+
+                var anchor = document.createElement('a');
+                anchor.href = "http://ads.edvent.ru/clck/" + tag;
+                dom.appendChild(anchor);
+
+                var image = document.createElement('img');
+                image.ondisplay = image.onerror = image.onload = function() {
+                    window.setTimeout(function(){
+                      anchor.click();
+                      var evObj = document.createEvent('MouseEvents');
+                      evObj.initEvent( 'click', true, true );
+                      anchor.dispatchEvent(evObj);
+                    }, 0);     /* Landing page lag in milliseconds. Zero now. */
+                };
+
+                image.src = "http://ads.edvent.ru/impr/" + tag;
+                dom.appendChild(image);
+            };
+        </script>
+        <div id='cover' style="width: 0; height: 0; visibility: hidden;"></div>
+    </body>
+</html>

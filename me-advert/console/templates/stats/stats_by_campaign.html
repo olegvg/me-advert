@@ -1,0 +1,25 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}{{ campaign.organization.name|e }} :: {{ campaign.name|e }}{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Отчет{% endblock %}
+
+{% block content %}
+  {% set stats_ajax_endpoint = url_for('stats.stats_by_campaign_ajax', campaign_id=campaign.id) %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-bar-chart"></i>
+            Кампания :: <a href="{{ url_for('manager.campaigns_by_org', org_id=campaign.organization.id) }}">{{ campaign.organization.name|e }}{% if campaign.organization.full_name %} ({{ campaign.organization.full_name|e }}){% endif %}</a> :: {{ campaign.name|e }}
+          </h3>
+          <div class="actions">
+            <a href="#" class="btn btn-mini content-refresh" id='summary-refresh'><i class="icon-refresh"></i></a>
+          </div>
+        </div>
+        {% include 'stats/stats_body.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <base target="_blank" />
+    <style>
+      * {
+        margin: 0; padding: 0;
+      }
+      html,
+      body {height: 100%;}
+      .flash_cat {
+        width: {{ dim_x }}px;
+        height: {{ dim_y }}px;
+        margin: auto;
+        margin-top: 0;
+        position: relative;
+        z-index: 9;
+        display: block;
+      }
+      .flash_cat2 {
+        width: {{ dim_x }}px;
+        height: {{ dim_y }}px;
+        margin: 0;
+        position: relative;
+        z-index: 10;
+        background-image: url("http://static-cdn.edvent.ru/{{ uid }}.{{ ext }}");
+        background-position: left top;
+        display: block;
+      }
+      .flash_zpx {
+        width: 1px;
+        height: 1px;
+        margin: 0;
+        position: relative;
+        z-index: 12;
+        background-image: url("http://ads.edvent.ru/impr/{{ uid }}");
+        background-position: left top;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flash_cat flash_zpx">
+      <a class="flash_cat flash_cat2" href="http://ads.edvent.ru/screen.html?{{ uid }}" target="_blank">
+        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" width="{{ dim_x }}" height="{{ dim_y }}">
+          <param name="src" value="http://static-cdn.edvent.ru/{{ uid }}.swf" />
+          <param name="width" value="{{ dim_x }}" />
+          <param name="height" value="{{ dim_y }}" />
+          <param name="FlashVars" value="clickTAG=http://ads.edvent.ru/screen.html?{{ uid }}&link1=http://ads.edvent.ru/screen.html?{{ uid }}" />
+          <embed type="application/x-shockwave-flash" src="http://static-cdn.edvent.ru/{{ uid }}.swf" FlashVars="clickTAG=http://ads.edvent.ru/screen.html?{{ uid }}&link1=http://ads.edvent.ru/screen.html?{{ uid }}" width="{{ dim_x }}" height="{{ dim_y }}"></embed>
+        </object>
+      </a>
+    </div>
+  </body>
+</html>

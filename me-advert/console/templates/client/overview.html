@@ -1,0 +1,44 @@
+{% extends 'client/frame.html' %}
+
+{% block sub_title %}Клиент{% endblock %}
+{% block nav_overview %}active{% endblock %}
+{% block frame_header %}{{ org.name|e }}{% endblock %}
+
+{% block content %}
+  <div class="lead">
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Полное название</strong></p></div>
+      <div class="span3"><p class="text-left">{{ org.full_name|e }}</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Активных РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ active_campaigns }} (<a href="{{ url_for('client.campaigns') }}">показать</a>)</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Неактивных РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ inactive_campaigns }} (<a href="{{ url_for('client.campaigns') }}">показать</a>)</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Архивных РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ archived_campaigns }}</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Показов по активным РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ total_impressions }}</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Кликов по активным РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ total_clicks }}</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>CTR (%) по активным РК</strong></p></div>
+      <div class="span3"><p class="text-left">{{ ctr }}</p></div>
+    </div>
+    <div class="row-fluid">
+      <div class="span3"><p class="text-right"><strong>Сотрудники</strong></p></div>
+      <div class="span9"><p class="text-left">{{ staff }}</p></div>
+    </div>
+  </div>
+{% endblock %}
+
+

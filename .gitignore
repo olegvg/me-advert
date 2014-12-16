@@ -1,0 +1,13 @@
+.DS_Store
+.DS_Store?
+._*
+*.pyc
+*.pyo
+env
+env*
+dist
+*.egg
+*.egg-info
+sandbox/
+examples/
+ssl.*

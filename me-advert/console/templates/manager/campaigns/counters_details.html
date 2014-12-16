@@ -1,0 +1,64 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-barcode"></i>
+            Коды :: <a href="{{ url_for('manager.campaigns_by_org', org_id=creative.campaign.organization.id) }}">{{ creative.campaign.organization.name|e }}{% if creative.campaign.organization.full_name %} ({{ creative.campaign.organization.full_name|e }}){% endif %}</a> :: <a href="{{ url_for('manager.creatives_by_campaign', campaign_id=creative.campaign.id) }}">{{ creative.campaign.name|e }}</a> :: <a href="{{ url_for('manager.counters_by_creative', creative_id=creative.id) }}">{% if creative.name %}{{ creative.name }} ({{ creative.creative_format.get_full_name()|e }}){% else %}{{ creative.creative_format.get_full_name()|e }}{% endif %}</a>
+          </h3>
+        </div>
+        <div class="box-content">
+          <ul class="tabs tabs-inline tabs-top">
+            <li class='active'>
+              <a href="#zero-pixels" data-toggle='tab'>Пиксели</a>
+            </li>
+            <li>
+              <a href="#banner" data-toggle='tab'>JS-баннер</a>
+            </li>
+            <li>
+              <a href="#iframe" data-toggle='tab'>IFRAME-баннер</a>
+            </li>
+          </ul>
+          <div class="tab-content padding tab-content-inline tab-content-bottom">
+            <div class="tab-pane active" id="zero-pixels">
+              {% set spacer = joiner('<div class="row-fluid"><div class="span12"></div></div>') %}
+              {% for counter in counters %}
+                {{ spacer()|safe }}
+                <div class="row-fluid">
+                  <div class="span5">{{ counter.contractor.name|e }}{% if counter.description %} ({{ counter.description|e }}){% endif %}:</div>
+                </div>
+                {% include "manager/campaigns/counter_details.html" %}
+              {% endfor %}
+            </div>
+            <div class="tab-pane" id="banner">
+              {% set spacer = joiner('<div class="row-fluid"><div class="span12"></div></div>') %}
+              {% for counter in counters %}
+                {{ spacer()|safe }}
+                <div class="row-fluid">
+                  <div class="span5">{{ counter.contractor.name|e }}{% if counter.description %} ({{ counter.description|e }}){% endif %}:</div>
+                </div>
+                {% include "manager/campaigns/js_banner_details.html" %}
+              {% endfor %}
+            </div>
+            <div class="tab-pane" id="iframe">
+              {% set spacer = joiner('<div class="row-fluid"><div class="span12"></div></div>') %}
+              {% for counter in counters %}
+                {{ spacer()|safe }}
+                <div class="row-fluid">
+                  <div class="span5">{{ counter.contractor.name|e }}{% if counter.description %} ({{ counter.description|e }}){% endif %}:</div>
+                </div>
+                {% include "manager/campaigns/iframe_banner_details.html" %}
+              {% endfor %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

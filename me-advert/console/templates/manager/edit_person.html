@@ -1,0 +1,196 @@
+{% extends 'manager/frame.html' %}
+
+{% from "forms.html" import render_input_tag, render_select_tag, field_validation_error, field_label %}
+
+{% block sub_title %}Сотрудники{% endblock %}
+{% block nav_persons %}active{% endblock %}
+{% block frame_header %}Сотрудники{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span6">
+      <div class="box">
+        <div class="box-title">
+          <h3>
+            <i class="icon-user"></i>
+            {{ {'new': 'Новый сотрудник', 'edit': 'Редактировать профиль сотрудника'}[type] }}
+          </h3>
+        </div>
+        {% if type == 'edit' %}
+          <div class="container-fluid">
+            <div class="row-fluid">
+              <div class="alert alert-error">
+                <strong>Осторожно!</strong> Все изменения здесь тут же отобразятся в интерфейсе клиента!
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        <div class="box-content">
+          <form action="{% if back_url %}?back_url={{ back_url }}{% endif %}" method='post' class='form-validate form-horizontal' id="person_form">
+            {{ form.hidden_tag() }}
+            <div class="control-group">
+              {{ field_label(form.email, 'control-label ', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.email, "input-block-level", "email", ext_params="data-rule-required='true' data-rule-email='true' data-rule-minlength='5'") }}
+                {{ field_validation_error(form, "email") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.first_name, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.first_name, "input-block-level", "first_name", ext_params="data-rule-required='true'") }}
+                {{ field_validation_error(form, "first_name") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.surname, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.surname, "input-block-level", "surname") }}
+                {{ field_validation_error(form, "surname") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.password, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.password, "input-block-level", "password", ext_params="data-rule-required='true' data-rule-minlength='4'") }}
+                <span class="help-block">4 &divide; 20 символа</span>
+                {{ field_validation_error(form, "password") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.retry_password, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.retry_password, "input-block-level", "retry_password", ext_params="data-rule-equalTo='#password' data-rule-required='true' data-rule-minlength='4'") }}
+                <span class="help-block">4 &divide; 20 символа</span>
+                {{ field_validation_error(form, "retry_password") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.role, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_select_tag(form.role, "input-block-level", "role") }}
+              </div>
+            </div>
+            <div class="control-group" id="organization-widget">
+              {{ field_label(form.organization_id, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.organization_id, "input-block-level", "organization_id", ext_params="data-placeholder=' '") }}
+                {{ field_validation_error(form, "organization_id") }}
+              </div>
+            </div>
+            <div class="control-group" id="contractor-widget">
+              {{ field_label(form.contractor_id, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.contractor_id, "input-block-level", "contractor_id", ext_params="data-placeholder=' '") }}
+                {{ field_validation_error(form, "contractor_id") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.is_blocked, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.is_blocked, "icheck-me", "is_blocked", ext_params="data-skin='square' data-color='blue'") }}
+                <span class="help-block">Запретить доступ к MediaEnergy</span>
+              </div>
+            </div>
+            <span class="help-block">Поля, помеченные (*), обязательны к заполнению</span>
+            <div class="form-actions">
+              <input type="submit" class="btn btn-primary" value="{{ {'new': 'Создать', 'edit': 'Изменить'}[type] }}">
+              <button type="button" class="btn">Отмена</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+    function formatResult(t) {
+      return "<p>" + t.name + "</p>";
+    }
+
+    function role_change() {
+      switch ($(this).val()) {
+        case "contractor":
+          $("#organization-widget").hide();
+          $("#contractor-widget").show();
+          break;
+        case "customer":
+          $("#organization-widget").show();
+          $("#contractor-widget").hide();
+          break;
+        case "manager":
+          $("#organization-widget").hide();
+          $("#contractor-widget").hide();
+          break;
+      }
+    }
+
+    $("#role").each(role_change)
+    $("#role").change(role_change);
+
+    $("input#organization_id").select2({
+      minimumInputLength: 1,
+      multiple: false,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_organizations_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.organizations};
+        }
+      },
+      initSelection: function(element, callback) {
+        var id=$(element).val();
+        if (id!=="") {
+          $.ajax("{{ url_for('manager.organization_by_id_ajax') }}", {
+            data: {
+              org_id: id
+            },
+            dataType: "json"
+          }).done(function(data) { callback(data); });
+        }
+      },
+      formatResult: formatResult,
+      formatSelection: formatResult,
+      escapeMarkup: function (m) { return m; }
+    });
+
+    $("input#contractor_id").select2({
+      //minimumInputLength: 1,
+      multiple: false,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_contractors_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.contractors};
+        }
+      },
+      initSelection: function(element, callback) {
+        var id=$(element).val();
+        if (id!=="") {
+          $.ajax("{{ url_for('manager.contractor_by_id_ajax') }}", {
+            data: {
+              contractor_id: id
+            },
+            dataType: "json"
+          }).done(function(data) { callback(data); });
+        }
+      },
+      formatResult: formatResult,
+      formatSelection: formatResult,
+      escapeMarkup: function (m) { return m; }
+    });
+  })
+  </script>
+{% endblock %}

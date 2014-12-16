@@ -1,0 +1,5 @@
+{% extends 'frame.html' %}
+
+{% block nav_pane %}
+  <li class="{% block nav_contractors %}{% endblock %}"><a href="{{ url_for('contractor.summary') }}">Поставщики</a></li>
+{% endblock %}

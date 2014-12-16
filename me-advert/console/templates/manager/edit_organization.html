@@ -1,0 +1,55 @@
+{% extends 'manager/frame.html' %}
+
+{% from "forms.html" import render_input_tag, field_validation_error, field_label %}
+
+{% block sub_title %}Рекламодатели{% endblock %}
+{% block nav_clients %}active{% endblock %}
+{% block frame_header %}Рекламодатели{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span6">
+      <div class="box">
+        <div class="box-title">
+          <h3>
+            <i class="icon-user"></i>
+            {{ {'new': 'Новый рекламодатель', 'edit': 'Редактировать профиль рекламодателя'}[type] }}
+          </h3>
+        </div>
+        {% if type == 'edit' %}
+          <div class="container-fluid">
+            <div class="row-fluid">
+              <div class="alert alert-error">
+                <strong>Осторожно!</strong> Все изменения здесь тут же отобразятся в интерфейсе клиента!
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        <div class="box-content">
+          <form action="{% if back_url %}?back_url={{ back_url }}{% endif %}" method='post' class='form-validate form-horizontal' id="organization_form">
+            {{ form.hidden_tag() }}
+            <div class="control-group">
+              {{ field_label(form.name, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.name, "input-block-level", "name", ext_params="data-rule-required='true' data-rule-minlength='1'") }}
+                {{ field_validation_error(form, "name") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.full_name, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.full_name, "input-block-level", "first_name") }}
+                {{ field_validation_error(form, "full_name") }}
+              </div>
+            </div>
+            <span class="help-block">Поля, помеченные (*), обязательны к заполнению</span>
+            <div class="form-actions">
+              <input type="submit" class="btn btn-primary" value="{{ {'new': 'Создать', 'edit': 'Изменить'}[type] }}">
+              <button type="button" class="btn">Отмена</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

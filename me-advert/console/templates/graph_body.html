@@ -1,0 +1,97 @@
+<div class="row-fluid">
+  <div class="span12">
+    <div class="box box-color box-bordered">
+      <div class="box-title">
+        <h3>
+          <i class="icon-bar-chart"></i>
+          Обзор
+        </h3>
+        <div class="actions">
+          <a href="#" class="btn btn-mini content-refresh" id='summary-refresh'><i class="icon-refresh"></i></a>
+        </div>
+      </div>
+      <div class="box-content">
+        <div class="statistic-big">
+          <div class="top">
+            <div class="left">
+              <form class="form-inline">
+                <label for="start-datetime">Начало:</label>
+                <input type="text" name="start-datetime" id="start-datetime" class='input-medium date-picker' {# value="{{ start_date.strftime('%d.%m.%Y 00:00') }}" #}/>
+                <label for="end-datetime">Конец:</label>
+                <input type="text" name="end-datetime" id="end-datetime" class='input-medium date-picker' {# value="{{ due_date.strftime('%d.%m.%Y 00:00') }}" #}/>
+{#                <select id='summary-select' class='chosen-select' data-nosearch="true">#}
+                <label for="summary-select">Масштаб:</label>
+                <select id="summary-select" data-nosearch="true">
+                  <option value="day">День</option>
+                  <option value="hour">Час</option>
+                  <option value="5_mins">5 минут</option>
+                </select>
+                <button class="btn" id='graph-refresh'>Обновить</button>
+              </form>
+            </div>
+            <div class="right"></div>
+          </div>
+          <div class="bottom">
+            <div class="flot" id="stats-summary"></div>
+          </div>
+          <div class="bottom">
+            <ul class="stats-overview">
+              <li>
+                <span class="name">
+                  Выполнено показов
+                </span>
+                <span class="value" id='total-imprs'></span>
+              </li>
+              <li>
+                <span class="name">
+                  Получено кликов
+                </span>
+                <span class="value" id='total-clcks'></span>
+              </li>
+              <li>
+                <span class="name">
+                  Достигнутый CTR (%)
+                </span>
+                <span class="value" id='total-ctr'></span>
+              </li>
+              {% if is_reach_visible %}
+                <li>
+                  <span class="name">
+                    Охват
+                  </span>
+                  <span class="value" id='total-reach'></span>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(function() {
+    function update_ajax() {
+      var ajax_url = '{{ stats_ajax_endpoint }}?start_datetime=' + $('#start-datetime').val() + '&' + 'end_datetime=' + $('#end-datetime').val() + '&' + 'scale=' + $('#summary-select').val()
+      plot_summary_obj.changeUrl(ajax_url);
+    }
+
+    $('.date-picker').each(function () {
+      $(this).appendDtpicker({
+        "firstDayOfWeek": 1,
+        "locale": "ru",
+        "inline": false,
+        "closeOnSelected": true});
+    });
+
+    var ajax_url = '{{ stats_ajax_endpoint }}?start_datetime=' + $('#start-datetime').val() + '&' + 'end_datetime=' + $('#end-datetime').val() + '&' + 'scale=' + $('#summary-select').val()
+
+    var plot_summary_obj = new plotSummaryGraph('div#stats-summary', ajax_url);
+    plot_summary_obj.begin_update()
+
+    $('form').submit(false);
+    $('#summary-refresh').click(update_ajax);
+    $('#graph-refresh').click(update_ajax);
+
+  });
+</script>

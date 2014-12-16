@@ -1,0 +1,119 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Сотрудники{% endblock %}
+{% block nav_persons %}active{% endblock %}
+{% block frame_header %}Сотрудники{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-group"></i>
+            Сотрудники
+          </h3>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin persons table-bordered">
+            <colgroup>
+              <col style="width: 30%;"> {# first name & surname#}
+              <col style="width: 40%;"> {# relation #}
+              <col style="width: 15%;"> {# role #}
+              <col style="width: 15%;"> {# is blocked #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Имя и фамилия</th>
+                <th>Отношение</th>
+                <th>Роль</th>
+                <th>Заблокирован?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in persons %}
+                <tr>
+                  <td>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Редактировать данные сотрудника" href="{{ url_for('manager.edit_person', person_id=row.id) }}"><i class="icon-edit"></i></a>
+                    <span>{{ row.first_name|e }} {{ row.surname|e }}</span>
+                  </td>
+                  <td>
+                    {% if row.role == 'customer' and row.organization -%}
+                      Рекламодатель: <a href="{{ url_for('manager.campaigns_by_org', org_id=row.organization.id) }}"><span>{{ row.organization.name|e }}</span>
+                      {% if row.organization.full_name %}({{ row.organization.full_name|e }}){% endif %}</a>
+                    {%- endif %}
+                    {% if row.role == 'contractor' and row.contractor -%}
+                      Поставщик: <a href="{{ url_for('manager.contractors', contractor_id=row.contractor.id) }}"><span>{{ row.contractor.name|e }}</span>
+                      {% if row.contractor.full_name %}({{ row.organization.full_name|e }}){% endif %}</a>
+                    {%- endif %}
+                  </td>
+                  <td>{{ {'customer': 'клиент', 'manager': 'супер-менеджер', 'contractor': 'подрядчик'}[row.role] }}</td>
+                  <td>{% if row.is_blocked %}Да{% else %}Нет{% endif %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      $('.persons').each(function(){
+          var opt = {
+              "sPaginationType": "full_numbers",
+              "iDisplayLength": 100,
+              "sDom": "<'row-fluid'<'span6'lT><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+              "sWrapper": "dataTables_wrapper form-inline",
+              "oTableTools": {
+                "aButtons": [
+                  {
+                    "sExtends": "gotoURL",
+                    "sButtonText": "Новый сотрудник",
+                    "sGoToURL": "{{ url_for('manager.new_person') }}"
+                  }
+                ]
+              },
+              "oLanguage":{
+                  "sProcessing":   "Подождите...",
+                  "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                  "sZeroRecords":  "Записи отсутствуют",
+                  "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                  "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                  "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                  "sInfoPostFix":  "",
+                  "sSearch":       "<span>Поиск:</span>",
+                  "sUrl":          "",
+                  "oPaginate": {
+                      "sFirst": "Первая",
+                      "sPrevious": "Пред.",
+                      "sNext": "След.",
+                      "sLast": "Последняя"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                      "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                  }
+              },
+              "bStateSave": true,
+              "fnStateSave": function (oSettings, oData) {
+                  localStorage.setItem( 'dt-persons', JSON.stringify(oData) );
+              },
+              "fnStateLoad": function (oSettings) {
+                  return JSON.parse( localStorage.getItem('dt-persons') );
+              }
+          };
+          var oTable = $(this).dataTable(opt);
+          $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+          $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+            disable_search_threshold: 9999999
+          });
+          $("#check_all").click(function(e){
+              $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+          });
+      });
+      // force correct width for chosen
+      resize_chosen();
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-briefcase"></i>
+            Креативы :: <a href="{{ url_for('manager.campaigns_by_org', org_id=org_id) }}">{{ org_name|e }}{% if org_full_name %} ({{ org_full_name|e }}){% endif %}</a> :: {{ campaign_name|e }}
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+            {# <a href="#" class="btn btn-mini content-slideUp"><i class="icon-angle-down"></i></a> #}
+          </div>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin creo-by-camp table-bordered">
+            <colgroup>
+              <col style="width: 25%;"> {# creative compound name #}
+              <col>  {# start date #}
+              <col>  {# realstart date #}
+              <col>  {# due date #}
+              <col>  {# targets #}
+              <col>  {# target impressions #}
+              <col>  {# # of impressions #}
+              <col>  {# # of clicks #}
+              <col>  {# CTR #}
+              <col> {# Reach #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Креатив</th>
+                <th>Старт план</th>
+                <th>Старт факт</th>
+                <th>Финиш</th>
+                <th>Таргет</th>
+                <th>Целевые показы</th>
+                <th>Показы</th>
+                <th>Клики</th>
+                <th>CTR (%)</th>
+                <th>Охват</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in creatives %}
+                <tr>
+                  <td>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Редактировать детали креатива" href="{{ url_for('manager.edit_creative', creative_id=row.creative_id) }}"><i class="icon-edit"></i></a>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать zeropixel & click ссылки" href="{{ url_for('manager.counters_details_by_creative', creative_id=row.creative_id) }}"><i class="icon-share"></i></a>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать табличный отчет" href="{{ url_for('stats.stats_by_creative', creative_id=row.creative_id) }}"><i class="icon-th-list"></i></a>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать отчет для рекламодателя" href="{{ url_for('manager.stats_by_creative', creative_id=row.creative_id) }}"><i class="icon-bar-chart"></i></a>
+                    <a href="{{ url_for('manager.counters_by_creative', creative_id=row.creative_id) }}"><span>{% if row.name %}{{ row.name|e }} ({{ row.creative_format.get_full_name()|e }}){% else %}{{ row.creative_format.get_full_name()|e }}{% endif %}</span></a>
+                  </td>
+                  <td>{% if row.start_date %}{{ row.start_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>{% if row.realstart_date %}{{ row.realstart_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>{% if row.due_date %}{{ row.due_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>
+                    <div>
+                      <a href="#geoModal-{{ row.creative_id }}" data-toggle="modal">Страны / Города</a>
+                      <div id="geoModal-{{ row.creative_id }}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="geoModalLabel-{{ row.creative_id }}" aria-hidden="true">
+                        <div class="modal-header">
+                          <h3 id="geoModalLabel-{{ row.creative_id }}">Геотаргетинг по странам или городам</h3>
+                        </div>
+                        <div class="modal-body">
+                          <p>
+                            {% set spacer_country = joiner(', ') %}
+                            Страны: {% for country in row.geo_countries %}{{ spacer_country() }}{{ country }}{% endfor %}
+                          </p>
+                          <p>
+                            {% set spacer_city = joiner(',') %}
+                            Города: {% for city in row.geo_cities %}{{ spacer_city() }}{{ city }}{% endfor %}
+                          </p>
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ row.target_impr }}</td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие показы / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.impr if row.impr else 0 }}</strong> / {{ row.impr_rej_geo if row.impr_rej_geo else 0 }} / {{ row.impr_rej_browser if row.impr_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие клики / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.clck if row.clck else 0 }}</strong> / {{ row.clck_rej_geo if row.clck_rej_geo else 0 }} / {{ row.clck_rej_browser if row.clck_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="CTR по прошедшим показам и кликам"><strong>{{ row.ctr|safe }}</strong></div></td>
+                  <td>{{ row.reach }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      function reload(){
+        location.reload();
+      }
+      setTimeout(reload, dataRefreshInterval);
+      $('a#page-refresh').
+        each(function() {
+          $(this).click(function(){
+          setTimeout(reload, delayBeforePageReload);
+        })
+      });
+
+      $("#mytable_info").prepend('<button></button>');
+
+      $('.creo-by-camp').each(function(){
+          var opt = {
+              "sPaginationType": "full_numbers",
+              "iDisplayLength": 100,
+              "sDom": "<'row-fluid'<'span6'lT><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+              "sWrapper": "dataTables_wrapper form-inline",
+              "oTableTools": {
+                "aButtons": [
+                  {
+                    "sExtends": "gotoURL",
+                    "sButtonText": "Новый креатив",
+                    "sGoToURL": "{{ url_for('manager.new_creative_to_campaign', campaign_id=campaign_id) }}"
+                  }
+                ]
+              },
+              "aoColumns": [
+                {},
+                { "sType": "date-spec" },
+                { "sType": "date-spec" },
+                { "sType": "date-spec" },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "oLanguage":{
+                  "sProcessing":   "Подождите...",
+                  "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                  "sZeroRecords":  "Записи отсутствуют",
+                  "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                  "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                  "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                  "sInfoPostFix":  "",
+                  "sSearch":       "<span>Поиск:</span>",
+                  "sUrl":          "",
+                  "oPaginate": {
+                      "sFirst": "Первая",
+                      "sPrevious": "Пред.",
+                      "sNext": "След.",
+                      "sLast": "Последняя"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                      "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                  }
+              },
+              "bStateSave": true,
+              "fnStateSave": function (oSettings, oData) {
+                  localStorage.setItem( 'dt-creo-by-camp', JSON.stringify(oData) );
+              },
+              "fnStateLoad": function (oSettings) {
+                  return JSON.parse( localStorage.getItem('dt-creo-by-camp') );
+              }
+          };
+          var oTable = $(this).dataTable(opt);
+          $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+          $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+            disable_search_threshold: 9999999
+          });
+          $("#check_all").click(function(e){
+              $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+          });
+      });
+      // force correct width for chosen
+      resize_chosen();
+    })
+  </script>
+{%  endblock %}

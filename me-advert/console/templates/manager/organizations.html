@@ -1,0 +1,112 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Рекламодатели{% endblock %}
+{% block nav_clients %}active{% endblock %}
+{% block frame_header %}Рекламодатели{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-group"></i>
+            Рекламодатели
+          </h3>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin orgs table-bordered">
+            <colgroup>
+              <col style="width: 20%;"> {# org name #}
+              <col style="width: 25%;"> {# full org name #}
+              <col> {# employees #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Рекламодатель</th>
+                <th>Полное название</th>
+                <th>Сотрудники</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in orgs %}
+                <tr>
+                  <td>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Редактировать данные рекламодателя" href="{{ url_for('manager.edit_organization', org_id=row.id) }}"><i class="icon-edit"></i></a>
+                    <a href="{{ url_for('manager.campaigns_by_org', org_id=row.id) }}"><span>{{ row.name|e }}</span></a>
+                  </td>
+                  <td>{{ row.full_name|e }}</td>
+                  <td>
+                    {% set comma_joiner = joiner() %}
+                    {% for person in row.persons -%}
+                      {{ comma_joiner() }} <a href="{{ url_for('manager.person', person_id=person.id) }}">{{ person.first_name|e }} {{ person.surname|e }}</a>
+                    {%- endfor %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      $('.orgs').each(function(){
+          var opt = {
+              "sPaginationType": "full_numbers",
+              "iDisplayLength": 100,
+              "sDom": "<'row-fluid'<'span6'lT><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+              "sWrapper": "dataTables_wrapper form-inline",
+              "oTableTools": {
+                "aButtons": [
+                  {
+                    "sExtends": "gotoURL",
+                    "sButtonText": "Новый рекламодатель",
+                    "sGoToURL": "{{ url_for('manager.new_organization') }}"
+                  }
+                ]
+              },
+              "oLanguage":{
+                  "sProcessing":   "Подождите...",
+                  "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                  "sZeroRecords":  "Записи отсутствуют",
+                  "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                  "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                  "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                  "sInfoPostFix":  "",
+                  "sSearch":       "<span>Поиск:</span>",
+                  "sUrl":          "",
+                  "oPaginate": {
+                      "sFirst": "Первая",
+                      "sPrevious": "Пред.",
+                      "sNext": "След.",
+                      "sLast": "Последняя"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                      "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                  }
+              },
+              "bStateSave": true,
+              "fnStateSave": function (oSettings, oData) {
+                  localStorage.setItem( 'dt-orgs', JSON.stringify(oData) );
+              },
+              "fnStateLoad": function (oSettings) {
+                  return JSON.parse( localStorage.getItem('dt-orgs') );
+              }
+          };
+          var oTable = $(this).dataTable(opt);
+          $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+          $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+            disable_search_threshold: 9999999
+          });
+          $("#check_all").click(function(e){
+              $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+          });
+      });
+      // force correct width for chosen
+      resize_chosen();
+    })
+  </script>
+{% endblock %}

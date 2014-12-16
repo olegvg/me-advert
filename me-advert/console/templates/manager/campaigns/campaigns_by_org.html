@@ -1,0 +1,151 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box box-bordered">
+        <div class="box-title">
+          <h3>
+            <i class="icon-briefcase"></i>
+            Кампании :: {{ org_name|e }}{% if org_full_name %} ({{ org_full_name|e }}){% endif %}
+          </h3>
+          <div class="actions">
+            <a href="" class="btn btn-mini content-refresh" id='page-refresh'><i class="icon-refresh"></i></a>
+            {# <a href="#" class="btn btn-mini content-slideUp"><i class="icon-angle-down"></i></a> #}
+          </div>
+        </div>
+        <div class="box-content nopadding">
+          <table class="table table-hover table-nomargin campaigns-by-org table-bordered">
+            <colgroup>
+              <col style="width: 25%;"> {# campaign name #}
+              <col>  {# start date #}
+              <col>  {# due date #}
+              <col>  {# status #}
+              <col>  {# target impressions #}
+              <col>  {# # of impressions #}
+              <col>  {# # of clicks #}
+              <col>  {# CTR #}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Кампания</th>
+                <th>Старт</th>
+                <th>Финиш</th>
+                <th>Статус</th>
+                <th>Целевые показы</th>
+                <th>Показы</th>
+                <th>Клики</th>
+                <th>CTR (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in campaigns %}
+                <tr>
+                  <td>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Редактировать детали кампании" href="{{ url_for('manager.edit_campaign', campaign_id=row.campaign_id) }}"><i class="icon-edit"></i></a>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать табличный отчет" href="{{ url_for('stats.stats_by_campaign', campaign_id=row.campaign_id) }}"><i class="icon-th-list"></i></a>
+                    <a class="btn" rel="tooltip" data-placement="bottom" data-original-title="Показать отчет для рекламодателя" href="{{ url_for('manager.stats_by_campaign', campaign_id=row.campaign_id) }}"><i class="icon-bar-chart"></i></a>
+                    <a href="{{ url_for('manager.creatives_by_campaign', campaign_id=row.campaign_id) }}"><span>{{ row.campaign_name|e }}</span></a>
+                  </td>
+                  <td>{% if row.start_date %}{{ row.start_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>{% if row.due_date %}{{ row.due_date.strftime('%d.%m.%Y') }}{% else %}&mdash;{% endif %}</td>
+                  <td>{{ row.state }}</td>
+                  <td>{{ row.target_impr }}</td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие показы / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.impr if row.impr else 0 }}</strong> / {{ row.impr_rej_geo if row.impr_rej_geo else 0 }} / {{ row.impr_rej_browser if row.impr_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="Прошедшие клики / отказы по признаку гео / отказы по признаку мобильной платформы"><strong>{{ row.clck if row.clck else 0 }}</strong> / {{ row.clck_rej_geo if row.clck_rej_geo else 0 }} / {{ row.clck_rej_browser if row.clck_rej_browser else 0 }}</div></td>
+                  <td><div rel="tooltip" data-placement="bottom" data-original-title="CTR по прошедшим показам и кликам"><strong>{{ row.ctr|safe }}</strong></div></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      function reload(){
+        location.reload();
+      }
+      setTimeout(reload, dataRefreshInterval);
+      $('a#page-refresh').
+        each(function() {
+          $(this).click(function(){
+          setTimeout(reload, delayBeforePageReload);
+        })
+      });
+
+      $("#mytable_info").prepend('<button></button>');
+
+      $('.campaigns-by-org').each(function(){
+          var opt = {
+              "sPaginationType": "full_numbers",
+              "iDisplayLength": 100,
+              "sDom": "<'row-fluid'<'span6'lT><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+              "sWrapper": "dataTables_wrapper form-inline",
+              "oTableTools": {
+                "aButtons": [
+                  {
+                    "sExtends": "gotoURL",
+                    "sButtonText": "Новая кампания",
+                    "sGoToURL": "{{ url_for('manager.new_campaign') }}"
+                  }
+                ]
+              },
+              "aoColumns": [
+                {},
+                { "sType": "date-spec" },
+                { "sType": "date-spec" },
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "oLanguage":{
+                  "sProcessing":   "Подождите...",
+                  "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                  "sZeroRecords":  "Записи отсутствуют",
+                  "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                  "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                  "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                  "sInfoPostFix":  "",
+                  "sSearch":       "<span>Поиск:</span>",
+                  "sUrl":          "",
+                  "oPaginate": {
+                      "sFirst": "Первая",
+                      "sPrevious": "Пред.",
+                      "sNext": "След.",
+                      "sLast": "Последняя"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                      "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                  }
+              },
+              "bStateSave": true,
+              "fnStateSave": function (oSettings, oData) {
+                  localStorage.setItem( 'dt-campaigns-by-org', JSON.stringify(oData) );
+              },
+              "fnStateLoad": function (oSettings) {
+                  return JSON.parse( localStorage.getItem('dt-campaigns-by-org') );
+              }
+          };
+          var oTable = $(this).dataTable(opt);
+          $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+          $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+            disable_search_threshold: 9999999
+          });
+          $("#check_all").click(function(e){
+              $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+          });
+      });
+      // force correct width for chosen
+      resize_chosen();
+    })
+  </script>
+{%  endblock %}

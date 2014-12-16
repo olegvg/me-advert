@@ -1,0 +1,8 @@
+{% extends 'frame.html' %}
+
+{% block nav_pane %}
+  <li class="{% block nav_clients %}{% endblock %}"><a href="{{ url_for('manager.organizations') }}">Рекламодатели</a></li>
+  <li class="{% block nav_persons %}{% endblock %}"><a href="{{ url_for('manager.persons') }}">Сотрудники</a></li>
+  <li class="{% block nav_campaigns %}{% endblock %}"><a href="{{ url_for('manager.campaigns_all') }}">Кампании</a></li>
+  <li class="{% block nav_contractors %}{% endblock %}"><a href="{{ url_for('manager.contractors') }}">Поставщики</a></li>
+{% endblock %}

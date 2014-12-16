@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    {% block topbar %}
+      <div id="navigation">
+        <div class="container-fluid">
+          {%- if app_type == 'MediaEnergy' %}
+            <a href="{{ url_for('auth.login') }}" id="brand">MediaEnergy <small>beta</small></a>
+          {%- elif app_type == 'Edvent' %}
+            <a href="{{ url_for('auth.login') }}" id="brand">Edvent</a>
+          {% endif -%}
+          {# <a href="#" class="toggle-nav" rel="tooltip" data-placement="bottom" title="Toggle navigation">
+            <i class="icon-reorder"></i>
+          </a> #}
+          <ul class='main-nav'>
+            {% block nav_pane %}{% endblock %}
+          </ul>
+          <div class="user">
+            {# <ul class="icon-nav">
+              <!-- Icon buttons -->
+            </ul> #}
+            <div class="dropdown">
+              <a class='dropdown-toggle' data-toggle="dropdown"><i class="icon-user">&nbsp;</i>{{ fullname }}&nbsp;<small>{{ '(супер-менеджер)' if role == 'manager'}}{{ '(поставщик)' if role == 'contractor'}}</small></a>
+              <ul class="dropdown-menu pull-right">
+                <li>
+                  <a href="{{ url_for('auth.logout') }}">Выйти</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endblock %}
+    <div class="container-fluid nav-hidden" id="content">
+      {# <div id="left" .... </div> #}
+      <div id="left"></div>
+		  <div id="main">
+        <div class="container-fluid">
+          <div class="page-header">
+            <div class="pull-left">
+              <h1>{% block frame_header %}{% endblock %}</h1>
+            </div>
+            <div class="pull-right">
+              {% block minitiles %}{% endblock %}
+              <ul class="stats current-time">
+                <li class='lightred'>
+                  <i class="icon-calendar"></i>
+                  <div class="details">
+                    <span class="big"></span>
+                    <span></span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+{% endblock %}

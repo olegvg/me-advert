@@ -1,0 +1,118 @@
+{% extends 'manager/frame.html' %}
+
+{% from "forms.html" import render_input_tag, render_fileinput_tag, field_validation_error, field_label %}
+
+{% block sub_title %}Кампании{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}Кампании{% endblock %}
+
+{% block content %}
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="box">
+        <div class="box-title">
+          <h3>
+            <i class="icon-barcode"></i>
+            {{ {'new': 'Новый код', 'edit': 'Редактировать код'}[type] }} :: <a href="{{ url_for('manager.campaigns_by_org', org_id=creative.campaign.organization.id) }}">{{ creative.campaign.organization.name|e }}{% if creative.campaign.organization.full_name %} ({{ creative.campaign.organization.full_name|e }}){% endif %}</a> :: <a href="{{ url_for('manager.creatives_by_campaign', campaign_id=creative.campaign.id) }}">{{ creative.campaign.name|e }}</a> :: <a href="{{ url_for('manager.counters_by_creative', creative_id=creative.id) }}">{% if creative.name %}{{ creative.name }} ({{ creative.creative_format.get_full_name()|e }}){% else %}{{ creative.creative_format.get_full_name()|e }}{% endif %}</a>
+          </h3>
+        </div>
+        <div class="box-content span6">
+          <form action="{% if back_url %}?back_url={{ back_url }}{% endif %}" method='post' class='form-validate form-horizontal' id="person_form" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="control-group">
+              {{ field_label(form.contractor_id, 'control-label', post_label_text='*') }}
+              <div class="controls">
+                {{ render_input_tag(form.contractor_id, "input-block-level", "contractor_id", ext_params="data-rule-required='true' data-placeholder=' '") }}
+                {{ field_validation_error(form, "contractor_id") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.creative_file_swf, 'control-label') }}
+              <div class="controls">
+                {{ render_fileinput_tag(form.creative_file_swf, "creative_file_swf") }}
+                <span class="help-block">Креатив в формате SWF.  Размер не более 150кб.</span>
+                {% if form.creative_file_swf.filename %}Текущий файл: {{ form.creative_file_swf.filename }}{% endif %}
+                {{ field_validation_error(form, "creative_file_swf") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.creative_file_gif, 'control-label') }}
+              <div class="controls">
+                {{ render_fileinput_tag(form.creative_file_gif, "input-block-level", "creative_file_gif") }}
+                <span class="help-block">Креатив в формате GIF, JPG.  Размер не более 150кб.</span>
+                {% if form.creative_file_gif.filename %}Текущий файл: {{ form.creative_file_gif.filename }}{% endif %}
+                {{ field_validation_error(form, "creative_file_gif") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.mu_ctr, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.mu_ctr, "input-block-level", "mu_ctr") }}
+                <span class="help-block">Целевое значение CTR для поставщика по модели CPC. Пример: 0.2</span>
+                {{ field_validation_error(form, "mu_ctr") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.sigma_ctr, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.sigma_ctr, "input-block-level", "sigma_str") }}
+                <span class="help-block">Вероятностный разброс CTR для поставщика по модели CPC. Пример: 0.05</span>
+                {{ field_validation_error(form, "sigma_ctr") }}
+              </div>
+            </div>
+            <div class="control-group">
+              {{ field_label(form.description, 'control-label') }}
+              <div class="controls">
+                {{ render_input_tag(form.description, "input-block-level", "description") }}
+                <span class="help-block">Примечание</span>
+                {{ field_validation_error(form, "description") }}
+              </div>
+            </div>
+            <span class="help-block">Поля, помеченные (*), обязательны к заполнению</span>
+            <div class="form-actions">
+              <input type="submit" class="btn btn-primary" value="{{ {'new': 'Создать', 'edit': 'Изменить'}[type] }}">
+              <button type="button" class="btn">Отмена</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function formatResult(t) {
+      return "<p>" + t.name + "</p>";
+    }
+
+    $("input#contractor_id").select2({
+      //minimumInputLength: 1,
+      multiple: false,
+      allowClear: true,
+      ajax: {
+        url: "{{ url_for('manager.select_contractors_ajax') }}",
+        dataType: 'json',
+        data: function (term, page) {
+          return {
+            query: term
+          };
+        },
+        results: function (data, page) {
+          return {results: data.contractors};
+        }
+      },
+      initSelection: function(element, callback) {
+        var id=$(element).val();
+        if (id!=="") {
+          $.ajax("{{ url_for('manager.contractor_by_id_ajax') }}", {
+            data: {
+              contractor_id: id
+            },
+            dataType: "json"
+          }).done(function(data) { callback(data); });
+        }
+      },
+      formatResult: formatResult,
+      formatSelection: formatResult,
+      escapeMarkup: function (m) { return m; }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'manager/frame.html' %}
+
+{% block sub_title %}{{ creative.campaign.organization.name|e }} :: {{ creative.campaign.name|e }} :: {{ creative.creative_format.get_full_name() }}{% endblock %}
+{% block nav_campaigns %}active{% endblock %}
+{% block frame_header %}{{ creative.campaign.organization.name|e }}{% if creative.campaign.organization.full_name %} ({{ creative.campaign.organization.full_name|e }}){% endif %} :: {{ creative.campaign.name|e }} :: {{ creative.creative_format.get_full_name() }}{% endblock %}
+
+{% block content %}
+  {% set stats_ajax_endpoint = url_for('client.stats_graph_of_creative_ajax', creative_id=creative.id) %}
+  {% set is_reach_visible = True %}
+  {% include 'graph_body.html' %}
+{% endblock %}

@@ -1,0 +1,149 @@
+
+<div class="box-content">
+  <div class="statistic-big">
+    <div class="top">
+      <div class="left">
+        <form class="form-inline">
+          <label for="start-datetime">Начало:</label>
+          <input type="text" name="start-datetime" id="start-datetime" class='input-medium date-picker' {# value="{{ start_date.strftime('%d.%m.%Y 00:00') }}" #}/>
+          <label for="end-datetime">Конец:</label>
+          <input type="text" name="end-datetime" id="end-datetime" class='input-medium date-picker' {# value="{{ due_date.strftime('%d.%m.%Y 00:00') }}" #}/>
+          <label for="summary-select">Масштаб:</label>
+          <select id="summary-select" data-nosearch="true">
+            <option value="day">День</option>
+            <option value="hour">Час</option>
+          </select>
+          <button class="btn" id='graph-refresh'>Обновить</button>
+        </form>
+      </div>
+      <div class="right"></div>
+    </div>
+    <table class="table table-hover table-nomargin stats-by-camp table-bordered">
+      <colgroup>
+        <col>  {# time period #}
+        <col>  {# impressions per period #}
+        <col>  {# clicks per period #}
+        <col>  {# CTR #}
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Период</th>
+          <th>Показы</th>
+          <th>Клики</th>
+          <th>CTR (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th style="text-align:right" >Итого:</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+<script>
+  $(function() {
+    var oTable;
+
+    function update_ajax() {
+      var ajax_url = '{{ stats_ajax_endpoint }}?start_datetime=' + $('#start-datetime').val() + '&' + 'end_datetime=' + $('#end-datetime').val() + '&' + 'scale=' + $('#summary-select').val()
+      oTable.fnReloadAjax(ajax_url);
+    }
+
+    $('.date-picker').each(function () {
+      $(this).appendDtpicker({
+        "firstDayOfWeek": 1,
+        "locale": "ru",
+        "inline": false,
+        "closeOnSelected": true});
+    });
+
+    $('form').submit(false);
+    $('#summary-refresh').click(update_ajax);
+    $('#graph-refresh').click(update_ajax);
+
+    $('.stats-by-camp').each(function(){
+        var opt = {
+            "bProcessing": true,
+            "bServerSide": false,
+            "sAjaxSource": "{{ stats_ajax_endpoint }}",
+            "sPaginationType": "full_numbers",
+            "iDisplayLength": 100,
+            "sDom": "<'row-fluid'<'span6'l><'span3'r><'span3 pull-right'T>>t<'row-fluid'<'span6'i><'span6'p>>",
+            "sWrapper": "dataTables_wrapper form-inline",
+            "aoColumns": [
+              { "sType": "date-spec" },
+              {},
+              {},
+              {},
+            ],
+            "oTableTools": {
+              "aButtons": [ "copy", "print" ],
+              "sSwfPath": "{{ url_for('static', filename='js/plugins/datatable/swf/copy_csv_xls_pdf.swf') }}"
+            },
+            "oLanguage":{
+                "sProcessing":   "Подождите...",
+                "sLengthMenu":   "_MENU_ <span>записей на страницу</span>",
+                "sZeroRecords":  "Записи отсутствуют",
+                "sInfo":         "Показаны с <span>_START_</span> по <span>_END_</span> из <span>_TOTAL_</span> записей",
+                "sInfoEmpty":    "Записи с <span>0</span> до <span>0</span> из <span>0</span> записей",
+                "sInfoFiltered": "(отфильтровано из <span>_MAX_</span> записей)",
+                "sInfoPostFix":  "",
+                "sSearch":       "<span>Поиск:</span>",
+                "sUrl":          "",
+                "oPaginate": {
+                    "sFirst": "Первая",
+                    "sPrevious": "Пред.",
+                    "sNext": "След.",
+                    "sLast": "Последняя"
+                },
+                "oAria": {
+                    "sSortAscending":  ": активировать для сортировки столбца по возрастанию",
+                    "sSortDescending": ": активировать для сортировки столбцов по убыванию"
+                }
+            },
+            "bStateSave": true,
+            "fnStateSave": function (oSettings, oData) {
+                localStorage.setItem( 'dt-stat-by-camp', JSON.stringify(oData) );
+            },
+            "fnStateLoad": function (oSettings) {
+                return JSON.parse( localStorage.getItem('dt-stat-by-camp') );
+            },
+            "fnFooterCallback": function ( nRow, aaData, iStart, iEnd, aiDisplay ) {
+              var iTotalImprs = 0.0;
+              for ( var i=0 ; i<aaData.length ; i++ )
+              {
+                iTotalImprs += aaData[i][1]*1.0;
+              }
+              var iTotalClcks = 0.0;
+              for ( var i=0 ; i<aaData.length ; i++ )
+              {
+                iTotalClcks += aaData[i][2]*1.0;
+              }
+              var nCells = nRow.getElementsByTagName('th');
+              nCells[1].innerHTML = parseInt(iTotalImprs);
+              nCells[2].innerHTML = parseInt(iTotalClcks);
+              nCells[3].innerHTML = parseFloat(Math.round(iTotalClcks*10000.0/iTotalImprs)/100.0);
+            }
+        };
+        oTable = $(this).dataTable(opt);
+        $(".dataTables_filter input").attr("placeholder", "Введите запрос...");
+        $(".dataTables_length select").wrap("<div class='input-mini'></div>").chosen({
+          disable_search_threshold: 9999999
+        });
+        $("#check_all").click(function(e){
+            $('input', oTable.fnGetNodes()).prop('checked',this.checked);
+        });
+    });
+    // force correct width for chosen
+    resize_chosen();
+
+
+
+  });
+</script>

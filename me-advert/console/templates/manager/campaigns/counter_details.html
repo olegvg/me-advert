@@ -1,0 +1,31 @@
+{% set innerspacer = joiner('<div class="row-fluid"><div class="span12"></div></div>') %}
+{% for provider in (['Закупка по модели CPM:', '/impr/', '/screen.html?'],
+                    ['Закупка по модели CPC:', '/cpcimpr/', '/screen.html?'],
+                    ['Аудит:', '/impr/', '/clck/']) %}
+  {{ innerspacer()|safe }}
+  <div class="row-fluid">
+    <div class="span6 offset1">
+      <b>{{ provider[0] }}</b>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span1 offset2">Zero-пиксел:</div>
+    <div class="span8">
+      {% if counter.uniq_id -%}
+        {{ ads_base }}{{ provider[1] }}{{ counter.uniq_id }}
+      {%- else -%}
+        Нет
+      {%- endif %}
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span1 offset2">Клик:</div>
+    <div class="span8">
+      {% if counter.uniq_id -%}
+        {{ ads_base }}{{ provider[2] }}{{ counter.uniq_id }}
+      {%- else -%}
+        Нет
+      {%- endif %}
+    </div>
+  </div>
+{% endfor %}
